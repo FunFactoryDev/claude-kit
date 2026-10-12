@@ -1,0 +1,13 @@
+{
+  "name": "ru-notify",
+  "version": "1.0.0",
+  "description": "Хук Notification: показывает уведомление на рабочем столе (macOS и Linux), когда Claude Code ждёт твоего ответа",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["russian", "hooks", "notifications", "zero2claude"]
+}

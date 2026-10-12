@@ -1,0 +1,13 @@
+{
+  "name": "ru-guard",
+  "version": "1.0.0",
+  "description": "Защитный хук PreToolUse: блокирует правки .env, .env.* и lock-файлов через Edit и Write и объясняет Claude причину по-русски",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["russian", "hooks", "safety", "zero2claude"]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "claude-kit",
+  "description": "Русскоязычные плагины для Claude Code от FunFactoryDev: скиллы, агент-ревьюер и защитные хуки для учеников курса zero2claude.ru",
+  "owner": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "plugins": [
+    {
+      "name": "ru-kit",
+      "source": "./plugins/ru-kit",
+      "version": "1.0.0",
+      "description": "Скиллы five-whys, tdd, review-ru, claude-md-review и агент code-reviewer (только чтение)"
+    },
+    {
+      "name": "ru-guard",
+      "source": "./plugins/ru-guard",
+      "version": "1.0.0",
+      "description": "Хук, который не даёт Claude править .env и lock-файлы"
+    },
+    {
+      "name": "ru-notify",
+      "source": "./plugins/ru-notify",
+      "version": "1.0.0",
+      "description": "Хук: уведомление на рабочем столе, когда Claude Code ждёт тебя"
+    }
+  ]
+}

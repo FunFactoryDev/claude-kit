@@ -1,0 +1,13 @@
+{
+  "name": "ru-kit",
+  "version": "1.0.0",
+  "description": "Скиллы на русском: five-whys (корень бага), tdd (красный, зелёный, рефакторинг), review-ru (ревью текущего диффа), claude-md-review (аудит CLAUDE.md) и агент code-reviewer, который только читает",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["russian", "skills", "tdd", "code-review", "zero2claude"]
+}

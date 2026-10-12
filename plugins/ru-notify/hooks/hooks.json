@@ -1,0 +1,15 @@
+{
+  "description": "ru-notify: уведомление на рабочем столе, когда Claude Code ждёт тебя",
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/notify.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
