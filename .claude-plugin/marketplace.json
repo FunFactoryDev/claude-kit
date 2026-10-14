@@ -1,6 +1,6 @@
 {
   "name": "claude-kit",
-  "description": "Русскоязычные плагины для Claude Code от FunFactoryDev: скиллы, агент-ревьюер и защитные хуки для учеников курса zero2claude.ru",
+  "description": "Claude Code plugins by FunFactoryDev: skills, a read-only reviewer agent and safety hooks, in Russian (ru-*) and English (en-*)",
   "owner": {
     "name": "FunFactoryDev",
     "url": "https://github.com/FunFactoryDev"
@@ -23,6 +23,24 @@
       "source": "./plugins/ru-notify",
       "version": "1.0.0",
       "description": "Хук: уведомление на рабочем столе, когда Claude Code ждёт тебя"
+    },
+    {
+      "name": "en-kit",
+      "source": "./plugins/en-kit",
+      "version": "1.0.0",
+      "description": "Skills five-whys, tdd, review-diff, claude-md-review and a read-only code-reviewer agent, in English"
+    },
+    {
+      "name": "en-guard",
+      "source": "./plugins/en-guard",
+      "version": "1.0.0",
+      "description": "A hook that keeps Claude from editing .env files and lockfiles"
+    },
+    {
+      "name": "en-notify",
+      "source": "./plugins/en-notify",
+      "version": "1.0.0",
+      "description": "A hook that shows a desktop notification when Claude Code is waiting for you"
     }
   ]
 }

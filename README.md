@@ -1,8 +1,10 @@
 # claude-kit
 
+**English:** the same plugins in English are `en-kit`, `en-guard` and `en-notify` — see [English plugins](#english-plugins-en-).
+
 Маркетплейс плагинов для Claude Code от **FunFactoryDev**, фабрики веселья для разработчиков: мы делаем проекты, потому что это весело. Здесь собраны русскоязычные скиллы, агент-ревьюер и защитные хуки для тех, кто проходит бесплатный курс [zero2claude.ru](https://zero2claude.ru).
 
-Плагинов три, и они независимы: можешь взять только скиллы, только защиту или всё сразу.
+Плагинов три, и они независимы: можешь взять только скиллы, только защиту или всё сразу. Те же плагины на английском — `en-kit`, `en-guard` и `en-notify`, о них [в конце](#english-plugins-en-).
 
 | Плагин | Что внутри | Запускает код на твоей машине |
 |---|---|---|
@@ -156,3 +158,132 @@ claude plugin validate --strict plugins/ru-kit
 Скиллы `five-whys`, `tdd`, `claude-md-review` и агент `code-reviewer` переведены и адаптированы из репозитория [wesammustafa/Claude-Code-Everything-You-Need-to-Know](https://github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know) (MIT, Copyright (c) 2025 Wesam Abousaid). Оттуда же взяты идеи хуков и формат маркетплейса. Спасибо автору.
 
 Лицензия: [MIT](LICENSE), Copyright (c) 2026 FunFactoryDev. Текст лицензии исходного репозитория сохранён в том же файле.
+
+---
+
+## English plugins (en-*)
+
+The same three plugins, with English texts, for learners of the free course [zero2vibecode.com](https://zero2vibecode.com). They are independent of each other and of the `ru-*` plugins: take only the skills, only the guard, or everything.
+
+| Plugin | What is inside | Runs code on your machine |
+|---|---|---|
+| `en-kit` | skills `five-whys`, `tdd`, `review-diff`, `claude-md-review` and the `code-reviewer` agent | no (instructions for Claude only) |
+| `en-guard` | a hook that keeps Claude from editing `.env` files and lockfiles | yes, `node` before every file edit |
+| `en-notify` | a hook that shows a desktop notification | yes, `node` on every Claude Code notification |
+
+### Install
+
+In a Claude Code session:
+
+```
+/plugin marketplace add FunFactoryDev/claude-kit
+/plugin install en-kit@claude-kit
+/plugin install en-guard@claude-kit
+/plugin install en-notify@claude-kit
+```
+
+`/plugin install` opens the plugin's card, where you confirm the install. Afterwards, restart Claude Code or type `/reload-plugins`.
+
+The same from the terminal, without a session:
+
+```bash
+claude plugin marketplace add FunFactoryDev/claude-kit
+claude plugin install en-kit@claude-kit
+```
+
+Update to a new version: `claude plugin update en-kit@claude-kit`.
+
+### en-kit: skills and an agent
+
+Every skill from a plugin gets the `en-kit:` prefix. Claude can also call a skill on its own when your request matches its description (except `tdd`: only you start that one).
+
+- **`/en-kit:five-whys`** — finds the root cause by asking "why?" down the chain, from the code, tests, logs and git history; guesses are marked as guesses. Changes no files.
+  ```
+  /en-kit:five-whys the tests fail only in CI and pass locally
+  ```
+- **`/en-kit:tdd`** — builds a feature one behavior at a time: a failing test, the smallest code that passes it, then cleanup, running the tests after every step. Edits code and tests with your usual permission prompts. Manual start only.
+  ```
+  /en-kit:tdd slugify turns "Hello, world" into hello-world
+  ```
+- **`/en-kit:review-diff`** — pulls in the output of `git status --short` and `git diff HEAD` before it runs and reviews the changes for correctness, security and readability, with a file and line for each finding. You can name a focus. Changes no files; it pre-approves only `git diff` and `git status`.
+  ```
+  /en-kit:review-diff security
+  ```
+  It needs a git repository with at least one commit: if `git diff HEAD` fails, Claude Code aborts the skill with `Shell command failed`.
+- **`/en-kit:claude-md-review`** — checks `CLAUDE.md` for vague rules, links to files that do not exist, stale commands, bloat and conflicts, and reports line numbers with ready rewrites. It does not touch the file and pre-approves only `Read`, `Glob` and `Grep`.
+  ```
+  /en-kit:claude-md-review
+  /en-kit:claude-md-review apps/web/CLAUDE.md
+  ```
+- **The `code-reviewer` agent** — a subagent that reviews in its own context. Its only tools are `Read`, `Grep` and `Glob`: it can read and search, but cannot edit files or run commands. Report sections: Must fix, Should fix, Consider.
+  ```
+  @agent-en-kit:code-reviewer review src/auth/login.ts and its tests
+  ```
+  Or in words: "Ask the code-reviewer agent to look at my changes in src/auth". It cannot run git, so name the files or paste the diff.
+
+### en-guard: protect .env and lockfiles
+
+Before every `Edit` and `Write` call (and `MultiEdit` in older versions), the hook looks at the file name. If it is `.env`, `.env.*` or a lockfile, the call is blocked (exit code 2) and Claude gets the reason and suggests another way.
+
+- **Blocked:** `.env`, `.env.local`, `.env.production` and any other `.env.*`; `package-lock.json`, `npm-shrinkwrap.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lock`, `bun.lockb`, `deno.lock`, `Cargo.lock`, `poetry.lock`, `uv.lock`, `Pipfile.lock`, `Gemfile.lock`, `composer.lock`, `go.sum`, `flake.lock`.
+- **Allowed:** secret-free templates `.env.example`, `.env.sample`, `.env.template`, `.env.dist`, and every other file.
+- **Not caught:** terminal commands (`Bash`), such as `echo X >> .env`. This guards against an accidental edit; it is not a sandbox. To keep Claude from reading `.env`, add `"permissions": { "deny": ["Read(.env)"] }` to your settings.
+- On input it does not understand (broken JSON, no path), the hook lets the call through silently: it never breaks a session.
+
+What Claude sees when an edit is blocked:
+
+```
+en-guard: editing .env.local is blocked. .env files hold secrets. Leave this file alone; ...
+```
+
+### en-notify: a desktop notification
+
+When Claude Code is waiting for you (asking for permission, or done and waiting for a reply), the hook shows a system notification with Claude Code's text: on macOS through `osascript`, on Linux through `notify-send` if it is installed. Elsewhere it does nothing and stays out of the way.
+
+### Turning a plugin off
+
+- In a session: `/plugin`, pick the plugin and disable it.
+- From the terminal: `claude plugin disable en-notify@claude-kit` (back on: `claude plugin enable ...`).
+- In settings: set it to `false` in `~/.claude/settings.json` (or in the project's `.claude/settings.local.json`):
+
+```json
+{
+  "enabledPlugins": {
+    "en-notify@claude-kit": false
+  }
+}
+```
+
+Remove it completely: `claude plugin uninstall en-notify@claude-kit`. Remove the marketplace with all its plugins: `claude plugin marketplace remove claude-kit`.
+
+### Safety
+
+**Read the hooks before you install: they run with your permissions.** A plugin hook runs outside the sandbox, like any program you start yourself. This is everything the English plugins run:
+
+| Plugin | When | Command | What it does |
+|---|---|---|---|
+| `en-guard` | before every `Edit`, `Write`, `MultiEdit` | `node "${CLAUDE_PLUGIN_ROOT}/hooks/guard-files.mjs"` | reads JSON from stdin, looks at `tool_input.file_path`, exits with code 0 or 2. No network, writes nothing to disk. [Source](plugins/en-guard/hooks/guard-files.mjs) |
+| `en-notify` | on every Claude Code notification | `node "${CLAUDE_PLUGIN_ROOT}/hooks/notify.mjs"` | runs `osascript` (macOS) or `notify-send` (Linux) with the title and text as separate arguments, no shell. No network, writes nothing to disk. [Source](plugins/en-notify/hooks/notify.mjs) |
+| `en-kit` | - | nothing | Markdown instructions for Claude only. The `review-diff` skill pulls in `git status --short` and `git diff HEAD` when you call it |
+
+When you update a plugin, read its hooks again: the new version runs with the same permissions.
+
+### For developers
+
+```bash
+npm test                                   # no dependencies, node --test
+claude plugin validate --strict .          # the marketplace
+claude plugin validate --strict plugins/en-kit
+```
+
+The tests also check that every `ru-*` plugin has an `en-*` twin with the same parts, that the `en-*` plugins contain no Russian text, and that `en-guard` blocks and allows the same files as `ru-guard`.
+
+Try a plugin without installing it: `claude --plugin-dir ./plugins/en-kit`.
+
+### Keep learning
+
+- The practicum on GitHub: [FunFactoryDev/claude-code-practicum](https://github.com/FunFactoryDev/claude-code-practicum)
+- The lesson on plugins: [zero2vibecode.com/learn/claude-code-pro/2-3-plugins](https://zero2vibecode.com/learn/claude-code-pro/2-3-plugins)
+- The lesson on a shared kit for the team: [zero2vibecode.com/learn/claude-code-pro/5-3-team-marketplace](https://zero2vibecode.com/learn/claude-code-pro/5-3-team-marketplace)
+
+The skills `five-whys`, `tdd`, `claude-md-review` and the `code-reviewer` agent are adapted from [wesammustafa/Claude-Code-Everything-You-Need-to-Know](https://github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know) (MIT, Copyright (c) 2025 Wesam Abousaid). License: [MIT](LICENSE).

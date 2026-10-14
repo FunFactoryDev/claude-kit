@@ -1,7 +1,7 @@
 {
   "name": "claude-kit",
   "private": true,
-  "description": "Claude Code plugin marketplace by FunFactoryDev: Russian-language skills, a read-only reviewer agent and safety hooks",
+  "description": "Claude Code plugin marketplace by FunFactoryDev: skills, a read-only reviewer agent and safety hooks, in Russian (ru-*) and English (en-*)",
   "license": "MIT",
   "type": "module",
   "scripts": {

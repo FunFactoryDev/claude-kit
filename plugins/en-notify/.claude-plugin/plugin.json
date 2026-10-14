@@ -1,0 +1,13 @@
+{
+  "name": "en-notify",
+  "version": "1.0.0",
+  "description": "Notification hook: shows a desktop notification (macOS and Linux) when Claude Code is waiting for you",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["english", "hooks", "notifications", "zero2vibecode"]
+}

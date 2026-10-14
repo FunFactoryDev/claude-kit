@@ -1,0 +1,13 @@
+{
+  "name": "en-guard",
+  "version": "1.0.0",
+  "description": "PreToolUse guard hook: blocks Edit and Write on .env, .env.* and lockfiles, and tells Claude why",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["english", "hooks", "safety", "zero2vibecode"]
+}

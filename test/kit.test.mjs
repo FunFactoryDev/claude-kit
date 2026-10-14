@@ -74,12 +74,27 @@ test("skills and agents have name + description, kebab-case, matching folder", (
       count++;
     }
   }
-  assert.equal(count, 5);
+  assert.equal(count, 10);
 });
 
-test("code-reviewer agent is read-only", () => {
-  const fm = frontmatter(join(ROOT, "plugins/ru-kit/agents/code-reviewer.md"));
-  assert.deepEqual(fm.tools.split(",").map((t) => t.trim()), ["Read", "Grep", "Glob"]);
+for (const kit of ["ru-kit", "en-kit"]) {
+  test(`${kit} code-reviewer agent is read-only`, () => {
+    const fm = frontmatter(join(ROOT, `plugins/${kit}/agents/code-reviewer.md`));
+    assert.deepEqual(fm.tools.split(",").map((t) => t.trim()), ["Read", "Grep", "Glob"]);
+  });
+}
+
+test("every ru-* plugin has an en-* twin with the same parts", () => {
+  const parts = (plugin) => {
+    const dir = join(ROOT, "plugins", plugin);
+    const ls = (sub) => (existsSync(join(dir, sub)) ? readdirSync(join(dir, sub)).length : 0);
+    const hooks = join(dir, "hooks/hooks.json");
+    const events = existsSync(hooks) ? Object.keys(readJson(hooks).hooks) : [];
+    return { skills: ls("skills"), agents: readdirSync(dir).includes("agents") ? readdirSync(join(dir, "agents")) : [], events };
+  };
+  const ru = pluginDirs.filter((n) => n.startsWith("ru-"));
+  assert.equal(ru.length, 3);
+  for (const plugin of ru) assert.deepEqual(parts(plugin.replace(/^ru-/, "en-")), parts(plugin), plugin);
 });
 
 test("every hook command points at a script that exists", () => {
@@ -96,40 +111,50 @@ test("every hook command points at a script that exists", () => {
   }
 });
 
-const GUARD = join(ROOT, "plugins/ru-guard/hooks/guard-files.mjs");
-const runGuard = (stdin) => spawnSync(process.execPath, [GUARD], { input: stdin, encoding: "utf8" });
+const runGuard = (stdin, guard = "ru-guard") =>
+  spawnSync(process.execPath, [join(ROOT, `plugins/${guard}/hooks/guard-files.mjs`)], { input: stdin, encoding: "utf8" });
 const preToolUse = (file_path, tool_name = "Edit") => JSON.stringify({
   hook_event_name: "PreToolUse", tool_name, cwd: "/tmp/proj",
   tool_input: { file_path, old_string: "a", new_string: "b" },
 });
 
-for (const p of [".env", ".env.local", "package-lock.json", "/tmp/proj/.env.production",
-  "C:\\proj\\pnpm-lock.yaml", "/tmp/proj/yarn.lock"]) {
-  test(`guard blocks ${p}`, () => {
-    const r = runGuard(preToolUse(p, "Write"));
-    assert.equal(r.status, 2);
-    assert.ok(r.stderr.trim().length > 0);
-    assert.match(r.stderr, /заблокирована/);
-  });
+for (const [guard, blocked] of [["ru-guard", /заблокирована/], ["en-guard", /is blocked/]]) {
+  for (const p of [".env", ".env.local", "package-lock.json", "/tmp/proj/.env.production",
+    "C:\\proj\\pnpm-lock.yaml", "/tmp/proj/yarn.lock"]) {
+    test(`${guard} blocks ${p}`, () => {
+      const r = runGuard(preToolUse(p, "Write"), guard);
+      assert.equal(r.status, 2);
+      assert.ok(r.stderr.trim().length > 0);
+      assert.match(r.stderr, blocked);
+    });
+  }
+
+  for (const p of ["src/app.js", "/tmp/proj/.env.example", "/tmp/proj/docs/env.md", "/tmp/proj/package.json"]) {
+    test(`${guard} allows ${p}`, () => {
+      const r = runGuard(preToolUse(p), guard);
+      assert.equal(r.status, 0);
+      assert.equal(r.stderr, "");
+    });
+  }
+
+  for (const [label, stdin] of [["malformed JSON", "{not json"], ["empty stdin", ""],
+    ["no tool_input", "{}"], ["JSON null", "null"], ["non-string path", '{"tool_input":{"file_path":42}}']]) {
+    test(`${guard} passes on ${label}`, () => assert.equal(runGuard(stdin, guard).status, 0));
+  }
 }
 
-for (const p of ["src/app.js", "/tmp/proj/.env.example", "/tmp/proj/docs/env.md", "/tmp/proj/package.json"]) {
-  test(`guard allows ${p}`, () => {
-    const r = runGuard(preToolUse(p));
-    assert.equal(r.status, 0);
-    assert.equal(r.stderr, "");
-  });
-}
-
-for (const [label, stdin] of [["malformed JSON", "{not json"], ["empty stdin", ""],
-  ["no tool_input", "{}"], ["JSON null", "null"], ["non-string path", '{"tool_input":{"file_path":42}}']]) {
-  test(`guard passes on ${label}`, () => assert.equal(runGuard(stdin).status, 0));
-}
-
-test("notify hook exits 0 on any input", () => {
-  const notify = join(ROOT, "plugins/ru-notify/hooks/notify.mjs");
-  // A malformed payload is the case that must never break a session; we don't
-  // fire a real notification from the test suite with a valid one.
-  const r = spawnSync(process.execPath, [notify], { input: "{bad", encoding: "utf8", env: { PATH: "" } });
-  assert.equal(r.status, 0);
+test("en-* plugins have no Russian text", () => {
+  for (const plugin of pluginDirs.filter((n) => n.startsWith("en-")))
+    for (const f of walk(join(ROOT, "plugins", plugin)))
+      assert.doesNotMatch(readFileSync(f, "utf8"), /[А-Яа-яЁё]/, f);
 });
+
+for (const plugin of ["ru-notify", "en-notify"]) {
+  test(`${plugin} hook exits 0 on any input`, () => {
+    const notify = join(ROOT, `plugins/${plugin}/hooks/notify.mjs`);
+    // A malformed payload is the case that must never break a session; we don't
+    // fire a real notification from the test suite with a valid one.
+    const r = spawnSync(process.execPath, [notify], { input: "{bad", encoding: "utf8", env: { PATH: "" } });
+    assert.equal(r.status, 0);
+  });
+}

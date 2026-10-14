@@ -1,0 +1,13 @@
+{
+  "name": "en-kit",
+  "version": "1.0.0",
+  "description": "English skills: five-whys (find a bug's root cause), tdd (red, green, refactor), review-diff (review the current diff), claude-md-review (audit CLAUDE.md) and a read-only code-reviewer agent",
+  "author": {
+    "name": "FunFactoryDev",
+    "url": "https://github.com/FunFactoryDev"
+  },
+  "homepage": "https://github.com/FunFactoryDev/claude-kit",
+  "repository": "https://github.com/FunFactoryDev/claude-kit",
+  "license": "MIT",
+  "keywords": ["english", "skills", "tdd", "code-review", "zero2vibecode"]
+}

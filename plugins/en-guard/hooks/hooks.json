@@ -1,0 +1,16 @@
+{
+  "description": "en-guard: keeps Claude from editing .env files and lockfiles with Edit and Write",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-files.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
